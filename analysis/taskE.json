@@ -1,0 +1,43 @@
+{
+ "error_rates": {
+  "none": {
+   "subs_per_100": 7.523751149249157,
+   "ins_per_100": 0.21452650934722647,
+   "del_per_100": 0.35243640821330063,
+   "ref_words": 6526
+  },
+  "opt": {
+   "subs_per_100": 7.2019613852283175,
+   "ins_per_100": 0.2911431198283788,
+   "del_per_100": 0.30646644192460926,
+   "ref_words": 6526
+  },
+  "jev": {
+   "subs_per_100": 6.63499846766779,
+   "ins_per_100": 0.4137296965982225,
+   "del_per_100": 0.4137296965982225,
+   "ref_words": 6526
+  }
+ },
+ "margin": {
+  "n_differ": 94,
+  "terciles": {
+   "low": {
+    "n": 32,
+    "correction_rate": 0.25
+   },
+   "mid": {
+    "n": 31,
+    "correction_rate": 0.1935483870967742
+   },
+   "high": {
+    "n": 31,
+    "correction_rate": 0.5161290322580645
+   }
+  },
+  "point_biserial_r": 0.12410275598233761,
+  "mean_margin_corrected": 0.6303116861979172,
+  "mean_margin_not": 0.48493585586548105,
+  "overall_correction_rate": 0.3191489361702128
+ }
+}

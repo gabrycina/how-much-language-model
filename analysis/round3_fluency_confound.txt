@@ -1,0 +1,46 @@
+FLUENCY-CONFOUND TEST (W10) — typed Jev arm, cached data only
+No API calls, no new inference. Test split: seed 0, last 70% of 1397 lists
+in insertion order = 978 lists. Jev pick = argmax of kaldi_jev.pkl scores;
+fluency proxy = argmax of kaldi_gpt2.pkl length-normalized log-likelihoods;
+truth = candidate whose text equals the reference.
+
+OVERALL (N=978 test lists; truth present in 849)
+- P(Jev pick == truth | truth present) = 77.6%
+- P(Jev pick == most-fluent candidate) = 40.7%
+- P(Jev pick == label A, decoder top) = 71.5%
+
+SANITY (pipeline alignment): the paper's truthPickJev = 67.9% and labJev = 57
+reproduce EXACTLY from this pipeline on the full 1397-list set (truthPickJev
+uses all lists as denominator, truth-absent counted as misses: 949/1397 =
+67.93%; 57 distinct labels used). Alignment confirmed. (Test-only labels
+used = 54; the paper's labJev was computed over the full set.)
+
+CONFOUND TEST — Jev deviates from label A in 279/978 lists (28.5%).
+- Conditional on deviating (truth present, N=199): picks the truth 40.2%
+  of the time, the most-fluent candidate 24.7%.
+- SHARPEST SUBSET: truth and fluency disagree AND Jev deviates from A
+  (N=144): picks the TRUTH 31.9%, picks the MOST-FLUENT (wrong) candidate
+  19.4%, picks neither 48.6%.
+- Control (truth == fluent candidate, Jev deviates, N=55): picks the
+  truth/fluent candidate 61.8%.
+- Where truth is absent and Jev deviates (N=80): picks the most-fluent
+  candidate only 8.8%.
+
+POSITION/FLUENCY ENTANGLEMENT AT THE TOP
+- P(label A is the fluency argmax) = 35.6% (label A is fluent about a
+  third of the time — some entanglement, but not dominant).
+- P(label A is the truth | truth present) = 75.6%.
+- Truth-selection rate when Jev picks A (N=699): 89.1%.
+- Truth-selection rate when Jev deviates (N=199): 40.2%.
+- The fluency-argmax candidate is itself the truth only 45.5% of the time,
+  so GPT-2 fluency alone is a weak truth signal here.
+
+VERDICT: the numbers do NOT support the confound. On the sharp subset
+(truth and fluency disagree, Jev deviates), Jev favours the true-but-less-
+fluent candidate (31.9%) over the fluent-but-wrong one (19.4%), ~1.6:1, and
+its deviations are not absorbed by the fluency argmax (48.6% pick neither).
+The prompt's "most fluent, natural English" wording does not appear to be
+driving Jev's deviations; its deviations lean toward the true transcript
+despite the fluency wording. Caveat: N=144 is modest, and 19.4% fluency-
+picking is non-negligible, so a mild fluency lean cannot be ruled out — but
+it is not the dominant driver.

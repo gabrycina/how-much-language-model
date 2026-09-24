@@ -1,0 +1,22 @@
+\begin{tabular}{llrlrrr}
+\toprule
+Rescorer & Shape & WER & 95\% CI & Sent.\ acc. & Params & TFLOP \\
+\midrule
+\multicolumn{7}{l}{\emph{Per-candidate scoring}} \\
+\quad \bf OPT-6.7b & & \bf 7.8 & [6.8, 8.8] & 71.6 & 6700M & 1.49 \\
+\quad Qwen2.5-7B & & 7.8 & [6.8, 8.7] & 70.9 & 7600M & 1.69 \\
+\quad GPT-2 large & & 7.8 & [6.9, 8.8] & 71.3 & 774M & 0.17 \\
+\quad GPT-2 medium & & 7.9 & [6.9, 8.9] & 70.7 & 355M & 0.08 \\
+\quad \bf GPT-2 small & & \bf 8.0 & [7.0, 9.0] & 70.8 & 124M & 0.03 \\
+\quad DistilGPT-2 & & 8.1 & [7.1, 9.1] & 69.5 & 82M & 0.02 \\
+\midrule
+\multicolumn{7}{l}{\emph{Typed selection (one pass over the whole list)}} \\
+\quad Jev (hosted) & & 7.5 & [6.5, 8.4] & 71.3 & --- & --- \\
+\quad Laya & & 8.1 & [7.1, 9.1] & 69.9 & 421M & 0.13 \\
+\quad OPT-6.7b & & 8.1 & [7.1, 9.1] & 69.9 & 6700M & 2.56 \\
+\quad Qwen2.5-7B & & 8.1 & [7.1, 9.1] & 70.0 & 7600M & 3.24 \\
+\midrule
+No rescoring (first pass only) & --- & 8.1 & [7.1, 9.1] & 69.9 & --- & --- \\
+\emph{Oracle (best in list)} & --- & \emph{2.5} & --- & --- & --- & --- \\
+\bottomrule
+\end{tabular}

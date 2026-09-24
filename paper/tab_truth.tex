@@ -1,0 +1,13 @@
+\begin{tabular}{lrrrrrr}
+\toprule
+ & \multicolumn{3}{c}{Truth in list (\nInList{} sent.)} & \multicolumn{3}{c}{Truth absent (\nOutList{} sent.)} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Arm & WER & $\Delta$ vs none & $p$ & WER & $\Delta$ vs none & $p$ \\
+\midrule
+No rescoring & 4.37 & --- & --- & 36.56 & --- & --- \\
+OPT-6.7b & 4.05 & -0.31 & 0.035 & 36.42 & -0.13 & 0.433 \\
+Qwen2.5-7B & 4.04 & -0.33 & 0.077 & 36.16 & -0.40 & 0.342 \\
+GPT-2 small & 4.28 & -0.09 & 0.346 & 36.29 & -0.27 & 0.360 \\
+Jev (typed) & 3.80 & -0.57 & 0.015 & 35.50 & -1.06 & 0.123 \\
+\bottomrule
+\end{tabular}

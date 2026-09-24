@@ -1,0 +1,11 @@
+{
+  "alpha": 0.5,
+  "epochs_run": 3,
+  "best_heldout_expected_error": 0.19526574652673317,
+  "dev_wer": 8.024917552216928,
+  "dev_sent_acc": 67.5417661097852,
+  "test_wer": 8.152007355194606,
+  "test_sent_acc": 69.6319018404908,
+  "p_vs_no_rescoring": 0.6197,
+  "p_vs_untuned_gpt2small": 0.8359
+}

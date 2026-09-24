@@ -1,0 +1,21 @@
+\begin{tabular}{lrlrr}
+\toprule
+Comparison (A vs.\ B) & $\Delta$WER & 95\% CI & $p$ & $p_{\text{Holm}}$ \\
+\midrule
+GPT-2 large (per-cand.) vs.\ OPT-6.7b & +0.05 & [-0.15, +0.24] & 0.701 & --- \\
+Qwen2.5-7B (per-cand.) vs.\ OPT-6.7b & -0.05 & [-0.40, +0.30] & 0.413 & --- \\
+Jev (hosted) (typed) vs.\ OPT-6.7b & -0.34 & [-0.80, +0.12] & 0.082 & --- \\
+Jev (hosted) (typed) vs.\ GPT-2 large & -0.38 & [-0.85, +0.08] & 0.057 & --- \\
+Laya (typed) vs.\ GPT-2 large & +0.25 & [-0.03, +0.53] & 0.963 & --- \\
+OPT-6.7b (typed) vs.\ OPT-6.7b & +0.29 & [-0.02, +0.59] & 0.972 & --- \\
+Qwen2.5-7B (typed) vs.\ Qwen2.5-7B & +0.35 & [-0.08, +0.77] & 0.949 & --- \\
+Jev (hosted) (typed) vs.\ No rescoring (first pass only) & -0.63 & [-1.12, -0.14] & 0.006 & 0.042 \\
+Qwen2.5-7B (per-cand.) vs.\ No rescoring (first pass only) & -0.34 & [-0.76, +0.09] & 0.064 & 0.256 \\
+OPT-6.7b (per-cand.) vs.\ No rescoring (first pass only) & -0.29 & [-0.59, +0.02] & 0.035 & 0.21 \\
+GPT-2 large (per-cand.) vs.\ No rescoring (first pass only) & -0.25 & [-0.53, +0.03] & 0.050 & 0.25 \\
+GPT-2 medium (per-cand.) vs.\ No rescoring (first pass only) & -0.17 & [-0.40, +0.06] & 0.079 & 0.256 \\
+GPT-2 small (per-cand.) vs.\ No rescoring (first pass only) & -0.11 & [-0.48, +0.25] & 0.315 & 0.63 \\
+DistilGPT-2 (per-cand.) vs.\ No rescoring (first pass only) & +0.02 & [-0.23, +0.26] & 0.587 & 0.63 \\
+OPT-6.7b (per-cand.) vs.\ GPT-2 small & -0.18 & [-0.48, +0.11] & 0.104 & --- \\
+\bottomrule
+\end{tabular}

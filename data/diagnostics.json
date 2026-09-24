@@ -1,0 +1,31 @@
+{
+  "jev": {
+    "distinct_labels": 54,
+    "n": 1397,
+    "frac_most_common": 0.6313528990694345,
+    "most_common_index": 0,
+    "truth_picked_pct": 57.40873299928418
+  },
+  "laya": {
+    "distinct_labels": 41,
+    "n": 1397,
+    "frac_most_common": 0.2727272727272727,
+    "most_common_index": 0,
+    "truth_picked_pct": 14.244810307802434
+  },
+  "optchoice": {
+    "distinct_labels": 15,
+    "n": 1397,
+    "frac_most_common": 0.7594846098783107,
+    "most_common_index": 0,
+    "truth_picked_pct": 34.5025053686471
+  },
+  "qwenchoice": {
+    "distinct_labels": 16,
+    "n": 1397,
+    "frac_most_common": 0.4602720114531138,
+    "most_common_index": 26,
+    "truth_picked_pct": 0.7158196134574087
+  },
+  "first_pass_top1_pct": 44.59556191839656
+}

@@ -1,0 +1,20 @@
+{
+ "optchoice": {
+  "n_test": 978,
+  "n_labels_used": 11,
+  "entropy_bits": 2.421642432747361,
+  "uniform_entropy_bits": 6.643856189774724,
+  "frac_top5_labels": 0.911042944785276,
+  "most_used_label": 0,
+  "max_label_frac": 0.3476482617586912
+ },
+ "qwenchoice": {
+  "n_test": 978,
+  "n_labels_used": 30,
+  "entropy_bits": 3.4234060537082756,
+  "uniform_entropy_bits": 6.643856189774724,
+  "frac_top5_labels": 0.7177914110429447,
+  "most_used_label": 0,
+  "max_label_frac": 0.2903885480572597
+ }
+}

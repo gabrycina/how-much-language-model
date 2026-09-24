@@ -1,0 +1,15 @@
+\begin{tabular}{llrrrrrr}
+\toprule
+ & & & \multicolumn{5}{c}{sentence error among spoken, at coverage} \\
+\cmidrule(lr){4-8}
+Rescorer & Shape & ECE & 30\% & 50\% & 70\% & 90\% & 100\% \\
+\midrule
+\bf Jev (hosted) & typed & 0.088 & \bf 3\% & \bf 8\% & \bf 13\% & \bf 22\% & \bf 29\% \\
+Laya & typed & 0.324 & 9\% & 10\% & 19\% & 28\% & 30\% \\
+OPT-6.7b & typed & 0.220 & 9\% & 13\% & 21\% & 27\% & 30\% \\
+Qwen2.5-7B & typed & 0.095 & 9\% & 16\% & 21\% & 25\% & 30\% \\
+OPT-6.7b & per-cand.\ + softmax & 0.160 & 8\% & 10\% & 17\% & 24\% & 28\% \\
+GPT-2 large & per-cand.\ + softmax & 0.136 & 9\% & 13\% & 18\% & 25\% & 29\% \\
+Qwen2.5-7B & per-cand.\ + softmax & 0.116 & 9\% & 15\% & 18\% & 25\% & 29\% \\
+\bottomrule
+\end{tabular}

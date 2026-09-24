@@ -1,0 +1,78 @@
+> **Partly superseded.** The note below states that the paper's WER normalization could
+> not be recovered. It was recovered later: the cause was a dev/test split mismatch
+> (insertion order vs the canonical seeded shuffle), documented in
+> `mwer_mismatch_report.md`. On the canonical split both cached baselines reproduce
+> exactly.
+
+# Round-3 revision statistics — summary (2026-09-21)
+
+NOTE (2026-09-22, read this first): the "WER recipe could not be recovered"
+caveat below refers to an independent clean-room reimplementation attempt, not to
+the released pipeline. The canonical pipeline reproduces every reported number
+exactly (see mwer_mismatch_report.md: the MWER self-check failure was a dev/test
+split bug, now fixed, with baselines matching to 16 decimals), and the paper's
+Statistics paragraph pins the recipe (jiwer 4.0.0, corpus-level word Levenshtein
+on the raw lowercased punctuation-free strings) with the bootstrap code released
+alongside the data. Recompute with exactly that recipe and code.
+
+JSON: ~/workspace/jev-revision/analysis_out/round3_stats.json
+
+Method note: clean-room reimplementation from the cached scores (seed-0 split
+verified: dev 419 / test 978; first-pass top-1 selections reproduce the
+diagnostics exactly, sentence accuracy 68.003% = reported 68.0029%). The paper's
+exact WER normalization could not be recovered — a standard word-level
+Levenshtein gives systematically larger arm-vs-baseline deltas — so W4 uses the
+reported p-values, and W6/W8 comparisons are relative (the offset cancels).
+
+## W4 — Holm correction (7 arms vs no rescoring)
+
+After Holm step-down correction at 0.05, only Jev remains significant
+(Holm-adjusted p = 0.042). OPT-6.7b, the strongest per-candidate arm
+(raw p = 0.035), does not survive (adjusted p = 0.21). Adjusted p-values:
+GPT-2 large 0.25, Qwen2.5-7B 0.256, GPT-2 medium 0.256, GPT-2 small 0.63,
+DistilGPT-2 0.63. Recomputation from cached scores was attempted (paired
+bootstrap, 5000 resamples, test only, recorded alphas) but the paper's WER
+recipe proved unrecoverable and Jev's typed pick is not in the cached scores,
+so the correction is applied to the reported p-values.
+
+## W8 — Alpha-tuning stability (419-sentence dev)
+
+The tuned interpolation weight is unstable but harmless. Across 200 bootstrap
+resamples of dev, the chosen alpha spreads over ~10 grid values per arm
+(std 0.10–0.16; e.g. OPT mode 0.25 with 85/200, range 0.0–0.55), yet the
+resulting test WER is stable (std 0.10–0.21pp; OPT 8.88 ± 0.21, range
+8.68–9.39). The WER surface is flat near the optimum: tuning on 419 sentences
+jitters the weight without overfitting the outcome. (Refits land one grid step
+from the recorded alphas, consistent with the flat optimum and the WER-recipe
+difference noted above.)
+
+## Q6 — z-normalization
+
+(a) Candidate counts are heavily skewed: mean 38.7, median 15, min 1, max 100;
+42.7% of the 1397 lists have fewer than 10 candidates (29.9% fewer than 5;
+81 single-candidate lists). (b) Replacing per-list z-normalization with one
+global mean/std (estimated on dev, alpha retuned) hurts every arm by +0.08 to
++0.42pp test WER, and dev tuning then discards the LM entirely (retuned alpha
+0.00–0.05; four of six arms choose no rescoring). Per-list normalization is
+load-bearing: a single global scale cannot align LM log-likelihoods across
+lists. The arm ranking shuffles (OPT becomes best) but no new significance
+claim emerges. (c) No pathology on short lists: on the 377 test lists with
+<10 candidates, the per-list z-norm top-1 agrees with a raw-score combination
+on 99.5% of lists, and short-list WER is ~0.5% under either rule.
+
+## Q7 — Calibration vs ranking for abstention
+
+(a) Isotonic recalibration of the temperature-scaled confidences introduces
+zero rank inversions (0 of 477,753 sentence pairs) and leaves the
+coverage–risk curve exactly unchanged: the gap to Jev is not a calibration
+problem. (b) Among per-candidate confidence signals, max softmax probability
+(the current baseline) beats the top-1–top-2 combined-score margin, while the
+raw top-1 combined score is anti-informative — sentence error rises as coverage
+falls, because per-list z-scoring makes raw top-1 values incomparable across
+lists. No per-candidate signal closes the gap, and the baseline already uses
+the best one. The decisive evidence is in the reported curves: at 100%
+coverage OPT and Jev have identical sentence error (28.4% vs 28.7%), yet Jev's
+curve falls far faster (3.4% vs 7.5% at 30% coverage). Same top-1 accuracy,
+better ordering of kept sentences — Jev's abstention advantage is a ranking
+advantage (its confidences separate right from wrong: 0.736 vs 0.409, gap 0.327,
+against OPT's 0.647 vs 0.368, gap 0.279), not calibration.

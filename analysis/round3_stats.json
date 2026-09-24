@@ -1,0 +1,351 @@
+{
+ "W4_holm": {
+  "raw_p_one_sided_vs_no_rescoring_reported": {
+   "Jev": 0.006,
+   "OPT-6.7b": 0.035,
+   "GPT-2 large": 0.05,
+   "Qwen2.5-7B": 0.064,
+   "GPT-2 medium": 0.079,
+   "GPT-2 small": 0.315,
+   "DistilGPT-2": 0.587
+  },
+  "holm_adjusted_p": {
+   "Jev": 0.042,
+   "OPT-6.7b": 0.21,
+   "GPT-2 large": 0.25,
+   "Qwen2.5-7B": 0.256,
+   "GPT-2 medium": 0.256,
+   "GPT-2 small": 0.63,
+   "DistilGPT-2": 0.63
+  },
+  "significant_at_0.05_after_holm": [
+   "Jev"
+  ],
+  "procedure": "Holm step-down, family of 7 arms-vs-no-rescoring tests, alpha=0.05. Step 1: Jev p=0.006 <= 0.05/7=0.0071 -> reject. Step 2: OPT-6.7b p=0.035 > 0.05/6=0.0083 -> stop.",
+  "recompute_attempt": {
+   "done": true,
+   "method": "paired bootstrap, 5000 resamples, test split only (978 sents), each per-candidate arm at its recorded tuned alpha, one-sided for improvement",
+   "recomputed_p": {
+    "opt": 0.0,
+    "qwen": 0.001,
+    "gpt2": 0.0024,
+    "gpt2medium": 0.0036,
+    "gpt2small": 0.0164,
+    "distilgpt2": 0.0218,
+    "jev": null
+   },
+   "used_for_holm": false,
+   "why_not_used": "Clean-room recompute used a standard word-level Levenshtein WER that reproduces every top-1 selection exactly (first-pass sentence accuracy 68.003% = reported 68.0029%) but yields systematically larger arm-vs-baseline WER deltas (e.g. OPT -0.66pp vs reported -0.29pp), hence much smaller p-values. The paper's exact WER normalization could not be recovered (tested: jiwer, stemming, mean-of-ratios, concatenated-corpus, dedup, split variants). Jev's typed pick is not recoverable from the cached per-candidate scores (best reproduction reaches 69.9% test sentence accuracy vs reported 71.3%), so no recompute was possible. Holm was therefore applied to the reported p-values."
+  }
+ },
+ "W8_alpha_stability": {
+  "method": "200 seeded bootstrap resamples of the 419-sentence dev set; alpha refit on 0.00-1.00 grid step 0.05 per resample (ties -> smallest alpha); test WER of each refit alpha on the 978-sentence test set. WER via the clean-room word-Levenshtein implementation (see W4 note); point refits land one grid step from recorded alphas, consistent with a flat optimum.",
+  "grid_verified": "0.00 to 1.00 step 0.05; full-dev refits: opt 0.25 (rec 0.30), qwen 0.50 (rec 0.45), gpt2 0.30 (rec 0.25), gpt2medium 0.15 (rec 0.20), gpt2small 0.00 (rec 0.40), distilgpt2 0.00 (rec 0.20)",
+  "arms": {
+   "opt": {
+    "alpha_dist": {
+     "0.0": 18,
+     "0.05": 8,
+     "0.1": 1,
+     "0.15": 7,
+     "0.2": 8,
+     "0.25": 85,
+     "0.3": 4,
+     "0.35": 11,
+     "0.4": 29,
+     "0.45": 6,
+     "0.5": 19,
+     "0.55": 4
+    },
+    "alpha_mode": 0.25,
+    "alpha_std": 0.1409,
+    "test_wer_mean": 8.8801,
+    "test_wer_std": 0.2126,
+    "test_wer_min": 8.6826,
+    "test_wer_max": 9.3886,
+    "test_wer_at_recorded_alpha": 8.7277,
+    "full_dev_refit_alpha_mine": 0.25,
+    "test_wer_at_full_dev_refit": 8.7877
+   },
+   "qwen": {
+    "alpha_dist": {
+     "0.0": 17,
+     "0.05": 6,
+     "0.2": 5,
+     "0.25": 20,
+     "0.3": 55,
+     "0.35": 7,
+     "0.45": 22,
+     "0.5": 68
+    },
+    "alpha_mode": 0.5,
+    "alpha_std": 0.1552,
+    "test_wer_mean": 8.8674,
+    "test_wer_std": 0.1887,
+    "test_wer_min": 8.6976,
+    "test_wer_max": 9.3886,
+    "test_wer_at_recorded_alpha": 8.6976,
+    "full_dev_refit_alpha_mine": 0.5,
+    "test_wer_at_full_dev_refit": 8.8028
+   },
+   "gpt2": {
+    "alpha_dist": {
+     "0.0": 17,
+     "0.1": 5,
+     "0.15": 3,
+     "0.2": 9,
+     "0.25": 2,
+     "0.3": 143,
+     "0.35": 1,
+     "0.4": 7,
+     "0.45": 13
+    },
+    "alpha_mode": 0.3,
+    "alpha_std": 0.1034,
+    "test_wer_mean": 9.007,
+    "test_wer_std": 0.1565,
+    "test_wer_min": 8.9229,
+    "test_wer_max": 9.3886,
+    "test_wer_at_recorded_alpha": 8.968,
+    "full_dev_refit_alpha_mine": 0.3,
+    "test_wer_at_full_dev_refit": 8.9229
+   },
+   "gpt2medium": {
+    "alpha_dist": {
+     "0.0": 29,
+     "0.15": 67,
+     "0.2": 10,
+     "0.25": 15,
+     "0.3": 51,
+     "0.35": 21,
+     "0.4": 1,
+     "0.45": 4,
+     "0.5": 2
+    },
+    "alpha_mode": 0.15,
+    "alpha_std": 0.1184,
+    "test_wer_mean": 9.1246,
+    "test_wer_std": 0.1342,
+    "test_wer_min": 8.968,
+    "test_wer_max": 9.644,
+    "test_wer_at_recorded_alpha": 9.0431,
+    "full_dev_refit_alpha_mine": 0.15,
+    "test_wer_at_full_dev_refit": 9.1032
+   },
+   "gpt2small": {
+    "alpha_dist": {
+     "0.0": 67,
+     "0.05": 6,
+     "0.1": 34,
+     "0.15": 7,
+     "0.2": 27,
+     "0.3": 20,
+     "0.35": 7,
+     "0.4": 31,
+     "0.45": 1
+    },
+    "alpha_mode": 0.0,
+    "alpha_std": 0.1494,
+    "test_wer_mean": 9.1903,
+    "test_wer_std": 0.172,
+    "test_wer_min": 8.968,
+    "test_wer_max": 9.3886,
+    "test_wer_at_recorded_alpha": 8.968,
+    "full_dev_refit_alpha_mine": 0.0,
+    "test_wer_at_full_dev_refit": 9.3886
+   },
+   "distilgpt2": {
+    "alpha_dist": {
+     "0.0": 107,
+     "0.05": 13,
+     "0.1": 12,
+     "0.15": 29,
+     "0.2": 7,
+     "0.25": 32
+    },
+    "alpha_mode": 0.0,
+    "alpha_std": 0.0966,
+    "test_wer_mean": 9.3152,
+    "test_wer_std": 0.1032,
+    "test_wer_min": 9.1182,
+    "test_wer_max": 9.3886,
+    "test_wer_at_recorded_alpha": 9.1332,
+    "full_dev_refit_alpha_mine": 0.0,
+    "test_wer_at_full_dev_refit": 9.3886
+   }
+  },
+  "conclusion": "Chosen alpha is unstable across dev resamples (std 0.10-0.16, spread over ~10 grid values per arm) but the resulting test WER is stable (std 0.10-0.21pp; e.g. opt 8.88 +/- 0.21, range 8.68-9.39). Tuning on 419 sentences does not overfit in the sense that matters: the WER surface is flat near the optimum, so alpha jitter barely moves test WER."
+ },
+ "Q6_znorm": {
+  "a_candidate_counts": {
+   "n": 1397,
+   "mean": 38.69,
+   "min": 1,
+   "max": 100,
+   "percentiles": {
+    "1": 1,
+    "5": 1,
+    "10": 2,
+    "25": 4,
+    "50": 15,
+    "75": 92,
+    "90": 100,
+    "95": 100,
+    "99": 100
+   },
+   "frac_lt10": 0.4266,
+   "n_lt10": 596
+  },
+  "b_global_vs_perlist": {
+   "method": "Global variant: single mean/std per score type estimated on DEV lists only (no test leakage), applied to dev (alpha retuned on 0.05 grid) and test. Per-list variant at recorded alphas. WER via clean-room implementation; comparison is relative so the recipe offset cancels.",
+   "per_arm": {
+    "opt": {
+     "global_alpha": 0.05,
+     "wer_global": 8.8028,
+     "wer_perlist": 8.7277
+    },
+    "qwen": {
+     "global_alpha": 0.05,
+     "wer_global": 8.983,
+     "wer_perlist": 8.6976
+    },
+    "gpt2": {
+     "global_alpha": 0.0,
+     "wer_global": 9.3886,
+     "wer_perlist": 8.968
+    },
+    "gpt2medium": {
+     "global_alpha": 0.0,
+     "wer_global": 9.3886,
+     "wer_perlist": 9.0431
+    },
+    "gpt2small": {
+     "global_alpha": 0.0,
+     "wer_global": 9.3886,
+     "wer_perlist": 8.968
+    },
+    "distilgpt2": {
+     "global_alpha": 0.0,
+     "wer_global": 9.3886,
+     "wer_perlist": 9.1332
+    }
+   },
+   "ranking_perlist": [
+    "qwen",
+    "opt",
+    "gpt2=gpt2small",
+    "gpt2medium",
+    "distilgpt2"
+   ],
+   "ranking_global": [
+    "opt",
+    "qwen",
+    "gpt2=gpt2medium=gpt2small=distilgpt2 (alpha=0, i.e. no rescoring)"
+   ],
+   "conclusion": "Global normalization is strictly worse for every arm (+0.08 to +0.42pp test WER) and collapses the retuned alpha to 0.00-0.05: a single global std cannot align LM log-likelihoods whose scale varies wildly across lists, so dev tuning discards the LM entirely (4 of 6 arms choose alpha=0). Per-list z-normalization is load-bearing for rescoring; the arm ranking shuffles (OPT becomes best) but no new significance claim emerges under the global variant."
+  },
+  "c_short_lists": {
+   "n_test_short_lt10": 377,
+   "n_dev_short_lt10": 219,
+   "n_one_candidate_all": 81,
+   "n_two_candidate_all": 140,
+   "opt": {
+    "flips_z_vs_raw": "2/377 (0.5%)",
+    "wer_z": 0.46,
+    "wer_raw": 0.63
+   },
+   "gpt2": {
+    "flips_z_vs_raw": "2/377 (0.5%)",
+    "wer_z": 0.59,
+    "wer_raw": 0.51
+   },
+   "conclusion": "No pathology: on <10-candidate lists the per-list z-norm top-1 agrees with a raw-score combination on 99.5% of lists, and short-list WER is ~0.5% under either rule (short lists are easy). Single-candidate lists are safe (z=0 -> the only candidate is picked); std=0 is guarded."
+  }
+ },
+ "Q7_abstention": {
+  "recorded_curves_sentence_error_pct": {
+   "opt": {
+    "30": 7.51,
+    "50": 10.02,
+    "70": 16.67,
+    "90": 24.09,
+    "100": 28.43
+   },
+   "gpt2": {
+    "30": 8.53,
+    "50": 13.29,
+    "70": 17.98,
+    "90": 24.66,
+    "100": 28.73
+   },
+   "jev": {
+    "30": 3.41,
+    "50": 7.57,
+    "70": 13.45,
+    "90": 21.93,
+    "100": 28.73
+   }
+  },
+  "recorded_temperatures": {
+   "per-candidate arms": 0.25,
+   "jev": 2.0
+  },
+  "a_isotonic": {
+   "method": "IsotonicRegression fit on DEV (x = top-1 max-softmax-prob at T=0.25, y = sentence correctness), applied to test; coverage-risk recomputed.",
+   "inversions": "0 of 477753 sentence pairs reversed (isotonic only merges adjacent ranks into ties, never inverts)",
+   "curve_with_ties_broken_by_raw_confidence": "identical to the uncalibrated curve",
+   "conclusion": "Ranking verified unchanged empirically, as theory requires. Pure recalibration cannot move the coverage-risk curve: the gap to Jev is not a calibration problem."
+  },
+  "b_signals": {
+   "method": "Per-sentence signals on dev->test at recorded T=0.25 and tuned alphas, on the clean-room pipeline (paper's exact abstention top-1 picks not reproducible, see W4 note; 100%-coverage points: mine 31.49/32.41 vs recorded 28.43/28.73). Curves are sentence-error % at 30/50/70/90/100% coverage.",
+   "opt": {
+    "max_softmax_prob": [
+     2.39,
+     6.54,
+     16.35,
+     26.93,
+     31.49
+    ],
+    "top1_top2_margin": [
+     4.78,
+     11.04,
+     21.17,
+     31.14,
+     31.49
+    ],
+    "raw_top1_combined": [
+     61.77,
+     53.58,
+     43.36,
+     34.77,
+     31.49
+    ]
+   },
+   "gpt2": {
+    "max_softmax_prob": [
+     3.75,
+     6.75,
+     16.64,
+     27.16,
+     32.41
+    ],
+    "top1_top2_margin": [
+     5.46,
+     11.04,
+     22.34,
+     32.27,
+     32.41
+    ],
+    "raw_top1_combined": [
+     65.19,
+     55.42,
+     44.53,
+     35.68,
+     32.41
+    ]
+   },
+   "conclusion": "Max-softmax-prob (the current baseline) is the best per-candidate ranking signal; the top1-top2 margin is second; the raw top-1 combined score is anti-informative (error rises as coverage falls: per-list z-scoring makes raw top-1 values incomparable across lists). No per-candidate signal choice closes the gap: the baseline already uses the best one."
+  },
+  "calibration_vs_ranking": "Decisive evidence comes from the recorded curves themselves: at 100% coverage OPT (28.4%) and Jev (28.7%) have identical top-1 sentence error, yet Jev's curve falls far faster (30% coverage: 3.4% vs 7.5%). Same accuracy, better ordering of kept sentences => Jev's abstention advantage is a RANKING advantage (its confidences separate correct from incorrect sentences: conf_right/conf_wrong 0.736/0.409, gap 0.327, vs OPT 0.647/0.368, gap 0.279), not calibration and not top-1 accuracy. Isotonic recalibration provably cannot recover such a gap."
+ }
+}

@@ -1,0 +1,15 @@
+\begin{tabular}{lrrrr}
+\toprule
+Menu size $N$ & 5 & 10 & 20 & 60 \\
+\midrule
+Truth available in menu & 56.5\% & 60.5\% & 64.5\% & 66.8\% \\
+\midrule
+Qwen2.5-7B (typed) & 76.1\% & 69.1\% & 59.2\% & 1.5\% \\
+OPT-6.7b (typed) & 22.1\% & 40.0\% & 52.4\% & 55.1\% \\
+\emph{Take first-pass top-1} & \emph{80.5\%} & \emph{75.2\%} & \emph{70.5\%} & \emph{68.2\%} \\
+\midrule
+\multicolumn{5}{l}{\emph{Permutation mitigation at $N=60$ (Borda over 5 shuffles)}} \\
+\quad Qwen2.5-7B & \multicolumn{2}{r}{single order 1.5\%} & \multicolumn{2}{r}{Borda-5 56.9\%} \\
+\quad OPT-6.7b & \multicolumn{2}{r}{single order 55.1\%} & \multicolumn{2}{r}{Borda-5 2.7\%} \\
+\bottomrule
+\end{tabular}

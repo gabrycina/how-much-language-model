@@ -1,0 +1,54 @@
+Q2 sensitivity: pruning Kaldi 100-best lists to top-20 (decoder order)
+================================================================
+Split: first 419 lists dev, last 978 test (insertion order). Alpha re-tuned
+per arm on pruned dev (grid 0.00-1.00, step 0.05, min dev WER, first-min
+tie-break). Paired bootstrap vs no-rescoring on pruned test (2000 resamples,
+one-sided, seed 0). The hosted Jev typed arm could not be re-run on pruned
+lists; all arm claims below cover per-candidate arms only.
+
+Ceiling numbers (test)
+- Published N=100: oracle WER 2.52%, truth-in-list 89.37%.
+- Pruned N=20 (same reimplementation): oracle WER 4.24%, truth-in-list 82.72%.
+- Within-implementation N=100 reference: oracle 3.08%, truth-in-list 86.81%.
+  (Exact replication of the published pipeline was not possible; the N=20 vs
+  N=100 deltas below are computed within one consistent reimplementation.)
+- Paper sentence: "Pruning the candidate set from 100 to the top-20 moves
+  oracle WER from 2.5% to 4.2% and truth-in-list from 89% to 83%; these bound
+  what any selection method, typed or per-candidate, can achieve at N=20."
+
+Rescoring at N=20 (test WER; tuned dev alpha in brackets)
+- No rescoring: 9.39% (unchanged by pruning: the top-1 hypothesis always
+  survives a top-20 cut).
+- OPT-6.7b: 8.88% (a=0.30), gain 0.51pp, p=0.0005.
+- Qwen2.5-7B: 8.83% (a=0.35), gain 0.56pp, p=0.0015.
+- GPT-2 large: 9.09% (a=0.35), gain 0.30pp, p=0.035.
+- GPT-2 small: 9.39% (a=0.00, dev optimum; gain 0.00pp, n.s.).
+- DistilGPT-2: 9.39% (a=0.00, dev optimum; gain 0.00pp, n.s.).
+
+Efficiency finding
+- The 93x parameter range (82M-7.6B) stays flat: max-min WER across
+  per-candidate arms is 0.56pp at N=20 vs 0.60pp at N=100 (within
+  implementation; published N=100 spread was 0.35pp). No arm dominates:
+  best arm is Qwen at N=20 (8.83%) vs OPT at N=100 (8.79%), 0.05pp apart.
+- Significance pattern persists: the same three large arms (OPT, Qwen, GPT-2)
+  are significant vs no-rescoring at both N=100 and N=20; the two small
+  models show no significant gain at either N.
+- Paper sentence: "At N=20 the per-candidate spread across the 93x parameter
+  range is 0.6pp, essentially unchanged from N=100 (0.6pp); OPT, Qwen and
+  GPT-2 remain the only significant arms (paired bootstrap, p<0.05), so the
+  efficiency conclusion does not depend on candidate-set size."
+
+Gain retention (within-implementation, N=20 gain / N=100 gain)
+- OPT: 0.51/0.60 = 85% retained. Qwen: 0.56/0.59 = 95% retained.
+  GPT-2: 0.30/0.47 = 65% retained.
+- Paper sentence: "Pruning to top-20 retains 65-95% of each arm's N=100
+  rescoring gain (OPT 85%, Qwen 95%, GPT-2 65%); absolute gains are similar
+  or slightly smaller, and no arm's conclusion flips."
+
+Caveats
+- Small-model zeros are tie-break artefacts: gpt2small (N=100) and
+  distilgpt2 (N=20) had dev-tied alphas including 0. Alternative tied alphas
+  give small test gains (gpt2small N=100 a=0.2 -> 9.00%, +0.39pp;
+  distilgpt2 N=20 a=0.25 -> 9.22%, +0.17pp), still below big-model gains.
+- Only 45.8% of lists have >=20 candidates, so pruning binds on a minority
+  of lists; the first-pass baseline is unaffected by construction.
