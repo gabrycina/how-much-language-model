@@ -574,6 +574,12 @@ $N=20$ against 0.3pp at $N=100$.
   achieve~\cite{kim2022joint}. On discriminative fine-tuning we have one test
   (\S\ref{sec:comb}): one model, one objective, 300 training lists. A larger effort could
   still shift the curve.
+\item \textbf{Test sentences seen as text in training.} 83 of the \nTest{} test sentences
+  also occur, as text, in the recurrent network's training split (different recordings of
+  the same sentence), a property of the benchmark's own split. They are easier (5.4\%
+  first-pass WER against 8.3\% on the other 895), and excluding them leaves the conclusions
+  unchanged: on the 895 unseen sentences OPT-6.7b gains 0.32 points at the published
+  weight and 0.92 with it re-tuned.
 \item \textbf{Results depend on the protocol.} Holding the decoder's acoustic weight at
   its published value, as our main tables do, understates the stage by about two-thirds;
   we report both protocols. The joint search over two weights is fit on \nDev{} sentences.
