@@ -1,4 +1,23 @@
-# How Much Language Model Does a Speech Neuroprosthesis Need?
+# Language-model rescoring for a speech neuroprosthesis
+
+Code, cached data and two papers on the second-pass rescoring stage of a speech
+brain-computer interface, on real intracortical recordings from participant T15.
+
+**Short paper** ([`paper-short/`](paper-short/typed_rescoring.pdf)): *A Typed-Decision Model
+Matches 7B Language Models for Speech-Neuroprosthesis Rescoring.* One call to Jev, a
+hosted typed-decision model, rescores the candidate list as well as OPT-6.7b or
+Qwen2.5-7B scoring every candidate: it is ahead in all four comparisons (two models, two
+tuning protocols) and at most 0.2 points of word error behind at the 95% bound. It costs
+$0.07 per thousand sentences with no GPU. Its API latency (median 262-282 ms) is mostly
+transport; the provider reports 62 ms of server time, the same order as a local 7B model
+(27 ms), not faster. Reproduce with `src/short_paper_results.py` (cached data) and
+`src/jev_latency.py` (needs an API key).
+
+**Extended report** ([`paper/`](paper/rescoring.pdf)): *How Much Language Model Does a
+Speech Neuroprosthesis Need?* The scale study, first-pass-strength sweep and failure
+analysis behind the short paper.
+
+## Extended report
 
 Code, cached data and paper for a study of the second-pass language-model rescoring stage
 in a speech brain-computer interface.
