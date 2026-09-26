@@ -15,7 +15,7 @@
 \input{numbers}
 
 \title{\bf How Much Language Model Does a Speech Neuroprosthesis Need?\\
-\large Once the decoder is strong, rescoring it barely helps}
+\large The stronger the decoder, the less rescoring helps}
 
 \author{Gabriele Cin\`a\\\small\texttt{c.gabriele.info@gmail.com}}
 \date{}
@@ -34,16 +34,18 @@ has not been measured.
 
 We hold the published T15 pipeline fixed, including its Kaldi decoder and OpenWebText
 3-gram, and score one cached 100-candidate list per sentence with every rescorer, so the
-only thing that varies is the rescorer. Sweeping 82M to 7.6B parameters moves word error
-from \werNone\% to \werOpt\%, a range across which the 95\% intervals of all seven arms
-overlap. After Holm correction for seven comparisons, only one arm separates from no
-rescoring, and it is a closed model; no open rescorer does. Varying only the decoder's
-acoustic weight on fixed candidate lists, the gain from rescoring falls from \gainWeak{}
-points when the decoder errs at \fpWeakSweep\% to \gainStrong{} points at \werNone\%.
-A cheaper design, asking the model to name the best candidate in a single pass rather
-than scoring all 100 one by one, fails for every model we tried: they answer from where a
-label sits in the list rather than from the sentence beside it. Every arm here is untuned and
-text-only, so these are lower bounds on what the stage could deliver.
+only thing that varies is the rescorer. At the published acoustic weight, sweeping 82M to
+7.6B parameters moves word error from \werNone\% to \werOpt\%, and after Holm correction
+only one arm, a closed model, separates from no rescoring. Re-tuning the decoder's weight
+together with the rescorer lifts the 7B-class open models (OPT-6.7b to \werOptJoint\%,
+Qwen2.5-7B to \werQwenJoint\%, both significant); nothing under 1B parameters helps under
+either protocol. Varying only the acoustic weight on fixed candidate lists, the gain from
+rescoring falls from \gainWeak{} points when the decoder errs at \fpWeakSweep\% to
+\gainStrong--\gainOptJoint{} points at \werNone\%. Asking a general language model to name
+the best candidate in a single pass fails: it answers from where a label sits in the list,
+not from the sentence beside it. The one purpose-built typed model we tested does not
+collapse and is the strongest arm, but its size is undisclosed. Every arm is untuned and
+text-only, so these are lower bounds.
 \end{abstract}
 
 \section{Introduction}
@@ -75,9 +77,10 @@ carries. We ask two questions the literature has largely settled by assumption:
   including under the mitigations proposed for listwise LLM reranking.
 \end{enumerate}
 
-Our answers, measured on real neural data rather than simulation, are that almost nothing
-in this stage still matters, and that the single-pass shortcut fails for a specific
-reason. Both are lower bounds: every arm is untuned and text-only, so neither result
+Our answers, measured on real neural data rather than simulation, are that once the
+decoder is strong the stage is worth under a point, that only 7B-class open models capture
+even that, and that the single-pass shortcut fails for general language models for a
+specific reason. Both are lower bounds: every arm is untuned and text-only, so neither result
 speaks to what a trained or acoustically conditioned rescorer could do.
 \S\ref{sec:related} covers where the literature finds larger gains.
 
@@ -85,15 +88,17 @@ speaks to what a trained or acoustically conditioned rescorer could do.
 \begin{itemize}\itemsep2pt
 \item A scale study of the rescoring stage on real T15 recordings across a 93$\times$
   parameter range, holding the published pipeline's candidate lists fixed, with bootstrap
-  intervals and paired significance tests at each arm's tuned interpolation weight
+  intervals and paired significance tests at each arm's tuned interpolation weight, both at
+  the published acoustic weight and with that weight re-tuned per arm
   (\S\ref{sec:efficiency}).
 \item A controlled sweep of first-pass strength. Varying only the decoder's acoustic
   scale on fixed candidate sets, the rescoring gain falls as the first pass improves, with
   a second data point from an earlier, weaker pipeline (\S\ref{sec:efficiency}).
-\item A test that the result is not an artefact of how scores are combined: four
-  interpolation schemes, a jointly fit multi-arm reranker, and MWER fine-tuning of the
-  smallest rescorer all leave the ranking unchanged (\S\ref{sec:comb}).
-\item A negative result on listwise typed selection. The measured cause is
+\item A test of the combination rule: four interpolation schemes, a jointly fit multi-arm
+  reranker, and MWER fine-tuning of the smallest rescorer leave the ranking unchanged
+  (\S\ref{sec:comb}). The decoder's own acoustic weight, which none of them touches, is
+  what moves the 7B models (\S\ref{sec:efficiency}).
+\item A negative result on listwise typed selection with general language models. The measured cause is
   \emph{label-position collapse}: models answer from where a label sits in the list
   rather than from the candidate beside it. Ablations over menu size and permutation
   aggregation separate two failure modes without repairing either (\S\ref{sec:typed}).
@@ -222,8 +227,9 @@ the number of forward passes.
 \input{tab_main}
 \caption{Real T15 data, \nTest{} held-out test sentences, identical 100-best lists from
 the published decoder, $\alpha$ tuned per arm on a disjoint development split. Bold: the
-efficiency comparison. Across a 93$\times$ parameter range word error moves three-tenths
-of a point; after Holm correction only Jev clears significance.}
+efficiency comparison. At the published acoustic weight (0.3), across a 93$\times$
+parameter range word error moves three-tenths of a point; after Holm correction only Jev
+clears significance. Table~\ref{tab:joint} re-tunes that weight.}
 \label{tab:main}
 \end{table}
 
@@ -231,13 +237,14 @@ of a point; after Holm correction only Jev clears significance.}
 \centering
 \includegraphics[width=0.68\linewidth]{fig_cost.pdf}
 \caption{Word error against compute per decision (log scale). Circles are per-candidate
-scoring, triangles typed selection. The efficiency result is the flatness of the
-per-candidate curve across two orders of magnitude of compute. Plotted points are the
+scoring, triangles typed selection, all at the published acoustic weight. The curve is
+flat across two orders of magnitude of compute; re-tuning that weight
+(Table~\ref{tab:joint}) tilts it in favour of the 7B models. Plotted points are the
 exact Table~\ref{tab:main} values; the table rounds to one decimal.}
 \label{fig:cost}
 \end{figure}
 
-Rescoring is barely worth doing once the decoder is this strong. The first pass alone scores
+At the published acoustic weight, rescoring is barely worth doing. The first pass alone scores
 \werNone\% WER and the best open rescorer reaches \werOpt\%. Table~\ref{tab:main} and
 Figure~\ref{fig:cost} sweep 82M to 7.6B parameters, and the per-candidate curve is flat
 to within measurement noise. \textbf{DistilGPT-2 (\parDistil) lands exactly on the
@@ -252,7 +259,8 @@ arms, and it does not separate them either.
 \centering\small
 \setlength{\tabcolsep}{4pt}
 \input{tab_sig}
-\caption{Paired bootstrap on the test split, each arm at its tuned $\alpha$.
+\caption{Paired bootstrap on the test split, each arm at its tuned $\alpha$ and the
+published acoustic weight.
 $p_{\text{Holm}}$ is the Holm step-down correction over the seven arms-vs-baseline
 comparisons; only Jev survives it.}
 \label{tab:sig}
@@ -263,10 +271,37 @@ no rescoring, Jev ($-0.63$, $p=0.006$) is the only arm that survives Holm correc
 the seven arms tested (adjusted $p=0.042$); OPT-6.7b ($-0.29$, raw $p=0.035$) does not
 (adjusted $p=0.21$), and neither do Qwen ($p=0.064$, adjusted $0.256$), GPT-2 large
 ($p=0.050$, adjusted $0.25$), or any smaller model (all adjusted $p \ge 0.25$). Within
-open models, scale buys nothing measurable: OPT-6.7b against GPT-2 small is $-0.18$ at
-$p=0.10$. The reading we favour is not that small models suffice, but that almost nothing in this
-stage matters: it contributes a fraction of a point, so the choice of model inside it is a
-second-order decision.
+open models, scale buys nothing measurable at this weight: OPT-6.7b against GPT-2 small is $-0.18$ at
+$p=0.10$. That reading depends on holding the decoder's acoustic weight at its published
+value, which was chosen for the decoder alone.
+
+\paragraph{Re-tuning the decoder's weight.} Once a rescorer is added, the acoustic weight
+is one more setting of the combined system, and nothing ties it to 0.3. We therefore tune
+it jointly with $\alpha$ on the development split (acoustic weight over 17 values in
+$[0, 5]$, $\alpha$ over 21 in $[0, 1]$), evaluate once on the test split, and compare
+against no rescoring, whose own development-tuned weight is again 0.3
+(Table~\ref{tab:joint}). The two 7B-class open models now separate clearly: OPT-6.7b
+reaches \werOptJoint\% ($-0.89$, Holm-adjusted $p<0.001$) and Qwen2.5-7B \werQwenJoint\%
+($-0.67$, adjusted $p=0.010$), while no model under 1B parameters does (all adjusted
+$p \ge 0.27$). Scale now buys something: OPT-6.7b beats GPT-2 small by $0.70$ points
+($p<0.001$). The optimum is broad rather than a lucky grid point: every setting within
+0.05 of it in both weights lands between 7.20\% and 7.40\% on test. The closed typed arm
+is best at \werJevJoint\%, with its tuned acoustic weight at 2.0, where it largely takes
+over the $n$-gram's role, but it does not separate from OPT-6.7b ($-0.28$, 95\% CI
+$[-0.72, +0.15]$, $p=0.11$). The revised reading is that the stage is worth under a
+point once the decoder is strong, that only 7B-class models capture it, and that the
+published fixed-weight protocol understates it by about two-thirds.
+
+\begin{table}[t]
+\centering\small
+\setlength{\tabcolsep}{3pt}
+\input{tab_joint}
+\caption{The decoder's acoustic weight re-tuned jointly with $\alpha$ per arm on the
+development split; test split, paired bootstrap (5{,}000, one-sided) against no
+rescoring; $p_{\text{Holm}}$ over the same seven arms as Table~\ref{tab:sig}. Bold: arms
+that survive correction. Open typed arms (bottom) remain at or below the baseline.}
+\label{tab:joint}
+\end{table}
 
 \paragraph{The gain depends on first-pass strength.} The same arms on our earlier weaker
 first pass (\werNoneWeak\% WER, oracle \oracleWerWeak\%, truth in list \truthInListWeak\%)
@@ -282,8 +317,10 @@ rerank of fixed candidates, not a new beam decode.
 Figure~\ref{fig:gaincollapse} shows the result for OPT-6.7b, with $\alpha$ re-tuned on
 the development split at each scale. The gain is largest when the first pass is weak
 (\gainWeak{} points at \fpWeakSweep\% WER) and shrinks to \gainStrong{} points at
-\werNone\%. Past the published scale it grows again only because the scale itself
-degrades the first pass. Over the range a practitioner would operate in, the value of
+\werNone\%. Past the published scale the gain grows again, partly because the first pass
+degrades and partly because a heavier acoustic weight lets the rescorer take over the
+$n$-gram's role: at 0.35 the first pass is unchanged at 8.09\% while OPT-6.7b reaches
+7.43\%, and the joint optimum above adds \gainOptJoint{} points. Over the range a practitioner would operate in, the value of
 rescoring is a decreasing function of first-pass strength, measured with one variable
 changed. This is the paper's central result.
 
@@ -295,7 +332,7 @@ changed. This is the paper's central result.
   xlabel={first-pass WER (\%)}, ylabel={rescoring gain (pp)},
   xmin=7, xmax=21, ymin=0, ymax=7.5,
   grid=major, grid style={dashed,gray!30},
-  legend pos=north east, legend style={font=\scriptsize},
+  legend pos=north west, legend style={font=\scriptsize},
 ]
 \addplot[only marks, mark=*, mark size=2.5pt, blue] coordinates {
 (19.7,6.8) (17.3,4.1) (14.0,1.6) (11.5,1.0) (9.3,0.6) (8.1,0.3)
@@ -303,11 +340,14 @@ changed. This is the paper's central result.
 \addlegendentry{acoustic sweep, OPT-6.7b (fixed lists)}
 \addplot[only marks, mark=square*, mark size=2.5pt, red] coordinates {(14.1,3.2)};
 \addlegendentry{earlier weaker decoder, OPT-6.7b}
+\addplot[only marks, mark=o, mark size=2.5pt, blue, thick] coordinates {(8.1,0.9)};
+\addlegendentry{acoustic weight re-tuned jointly}
 \end{axis}
 \end{tikzpicture}
 \caption{Rescoring gain collapses as first-pass strength increases. Blue points vary only the acoustic scale on fixed candidate sets;
 the red square is the earlier weaker decoder (a different pipeline, shown separately).
-Where the published decoder sits, at \werNone\% error, three-tenths of a point remain.}
+Where the published decoder sits, at \werNone\% error, three-tenths of a point remain at
+the published weight and \gainOptJoint{} with that weight re-tuned (hollow circle).}
 \label{fig:gaincollapse}
 \end{figure}
 
@@ -327,7 +367,7 @@ not reliably predict an override's success. The predictable part of the gain sit
 where the truth is in the list: overrides cannot reach the truth on the 11\% of lists
 where it is absent.
 
-\section{Score combination is not the bottleneck}
+\section{The interpolation rule is not the bottleneck}
 \label{sec:comb}
 
 \begin{table}[t]
@@ -355,12 +395,15 @@ arm, and none beats V0 significantly once the 18 arm--variant comparisons are ac
 for (smallest raw $p=0.019$, Holm-adjusted $0.33$). Temperature scaling actively hurts the
 two smallest arms (GPT-2 small $7.98 \rightarrow 8.37$, DistilGPT-2 $8.11 \rightarrow
 8.50$), a reminder that dev-fitted combination can overfit on \nDev{} sentences. The
-ranking of arms is invariant to the rule, which is what \S\ref{sec:efficiency} needs.
+ranking of arms is invariant to the rule. None of these variants, however, touches the
+decoder's own acoustic weight, and \S\ref{sec:efficiency} shows that weight matters more
+than any of them.
 
 A joint linear reranker over the first-pass score and five per-candidate arms, fit with
 the same objective, reaches \mwerMulti\% against \werOpt\% for the best single arm
-(paired $p=\mwerMultiP$), keeping OPT-6.7b and Qwen2.5-7B and zeroing the rest. Even a
-jointly fit discriminative combination of untuned scorers barely moves the needle.
+(paired $p=\mwerMultiP$), keeping OPT-6.7b and Qwen2.5-7B and zeroing the rest. It takes
+the first-pass score as one fixed feature, so it cannot re-weight acoustic against
+$n$-gram evidence; the joint re-tuning in \S\ref{sec:efficiency} can, and gains more.
 
 \paragraph{Discriminative fine-tuning of the small rescorer.} The fits above move
 scalars, not the model. The stronger test fine-tunes GPT-2 small itself with the MWER
@@ -400,7 +443,8 @@ If the rescorer's job is to pick one of $N$ written-down options, an obvious eff
 move is to ask for exactly that. It does not work for general language models: the two
 open typed arms land on the no-rescoring baseline (Table~\ref{tab:main}), with OPT-6.7b
 and Laya both tuning to $\alpha=0$, meaning the combination discards them entirely, and
-only the closed Jev arm improves on it.
+only the closed Jev arm improves on it. Re-tuning the acoustic weight does not rescue the
+open typed arms (Table~\ref{tab:joint}), while Jev becomes the strongest arm overall.
 
 Table~\ref{tab:collapse} shows the mechanism, reproduced under the strong first pass.
 Candidates are serialised in the decoder's ranking order, so label A is the decoder's own
@@ -521,7 +565,7 @@ $N=20$ against 0.3pp at $N=100$.
 
 \begin{itemize}\itemsep2pt
 \item \textbf{One participant, one split, limited power.} T15, \texttt{val}, \nTest{} test
-  sentences. Effects here are a few tenths of a point and bootstrap intervals span roughly
+  sentences. Effects here are under a point and bootstrap intervals span roughly
   a point, so the study detects effects around half a point and above. Read ``no
   improvement'' as ``none large enough for this sample to see.'' No other T15 session with
   released transcripts was available, so cross-session generalisation is untested.
@@ -530,6 +574,9 @@ $N=20$ against 0.3pp at $N=100$.
   achieve~\cite{kim2022joint}. On discriminative fine-tuning we have one test
   (\S\ref{sec:comb}): one model, one objective, 300 training lists. A larger effort could
   still shift the curve.
+\item \textbf{Results depend on the protocol.} Holding the decoder's acoustic weight at
+  its published value, as our main tables do, understates the stage by about two-thirds;
+  we report both protocols. The joint search over two weights is fit on \nDev{} sentences.
 \item \textbf{The first-pass sweep reranks fixed candidate sets.} Varying the acoustic
   scale changes first-pass strength without re-running the beam decode, so the candidate
   pool is fixed by construction.
@@ -549,12 +596,14 @@ $N=20$ against 0.3pp at $N=100$.
 \section{Conclusion}
 
 On real intracortical recordings with the published decoder, the language-model rescoring
-stage contributes a fraction of a word-error point. Across a 93$\times$ range of model
-size word error moves three-tenths of a point, and no open-model difference clears
-significance after Holm correction. The one arm that does is closed
-(Jev~\cite{typesafe2026jev}); we read it as evidence that exploitable signal remains in
-the task, not as a deployable result, and the reproducible finding is the negative one
-across open models.
+stage contributes under a word-error point. At the published acoustic weight, a 93$\times$
+range of model size moves word error three-tenths of a point and no open model clears
+significance after Holm correction. Re-tuning that weight with the rescorer roughly triples
+the gain for the 7B-class open models (\werNone\% $\rightarrow$ \werOptJoint\% for
+OPT-6.7b), which then separate from both the baseline and the small models; nothing under
+1B parameters does under either protocol. The strongest arm under both is closed
+(Jev~\cite{typesafe2026jev}) and does not separate from OPT-6.7b; we read it as evidence
+that a purpose-built typed model can do the job, not as a deployable or cost result.
 
 Collapsing the stage into a single listwise typed decision does not work for general
 language models. Every typed arm piles most of its decisions on the decoder's top
@@ -565,9 +614,11 @@ either competitive with doing nothing.
 The stage mattered when the first pass was weaker. On our earlier \werNoneWeak\%-error
 decoder it was worth 3.2 points, and a controlled sweep varying only the acoustic scale
 puts the gain at \gainWeak{} points at \fpWeakSweep\% first-pass WER against
-\gainStrong{} at \werNone\%. Four interpolation schemes, a jointly fit reranker and a
-discriminatively fine-tuned GPT-2 small all land within noise, so this is not an artefact
-of the combination rule.
+\gainStrong--\gainOptJoint{} at \werNone\%, depending on whether the acoustic weight is
+re-tuned. Four interpolation schemes, a jointly fit reranker and a discriminatively
+fine-tuned GPT-2 small all land within noise; the one setting that matters is the
+decoder's own weight, and even with it re-tuned the gain at a strong first pass is a
+fraction of the gain at a weak one.
 
 One hypothesis fits the remaining puzzle. Oracle WER is \oracleWer\% against \werNone\%
 first-pass, yet text-only models exploit almost none of that headroom. A plausible

@@ -15,17 +15,23 @@ decoder improves.
 Holding the published T15 pipeline fixed (its Kaldi/WFST decoder and OpenWebText 3-gram)
 and scoring one cached 100-candidate list per sentence with every rescorer:
 
-- **The stage contributes a fraction of a word-error point.** Sweeping 82M to 7.6B
-  parameters moves WER from 8.1% to 7.8%. Every arm's 95% interval overlaps every other's.
-  After Holm correction over seven arms, no open model separates from no rescoring at all.
+- **Once the decoder is strong, the stage is worth under a point.** At the published
+  acoustic weight, sweeping 82M to 7.6B parameters moves WER from 8.1% to 7.8%, and after
+  Holm correction no open model separates from no rescoring.
+- **Re-tuning the decoder's weight lifts the 7B models.** Tuning the acoustic weight
+  jointly with the rescorer (dev split only) takes OPT-6.7b to 7.2% and Qwen2.5-7B to 7.4%,
+  both significant after Holm correction; nothing under 1B parameters helps under either
+  protocol (`src/joint_tuning.py`).
 - **The gain depends on first-pass strength.** Varying only the decoder's acoustic scale on
   fixed candidate sets, rescoring is worth 6.8 points when the decoder errs at 19.7% and
-  0.3 points at 8.1%.
-- **The single-pass shortcut fails.** Asking a model to name the best candidate in one
-  forward pass, rather than scoring all 100, fails for every model tested. They answer from
-  where a label sits in the list rather than from the candidate beside it.
-- **It is not an artefact of score combination.** Four interpolation schemes, a jointly fit
-  multi-arm reranker, and MWER fine-tuning of the smallest rescorer all land within noise.
+  0.3 to 0.9 points at 8.1%.
+- **The single-pass shortcut fails for general language models.** Asking a model to name
+  the best candidate in one forward pass, rather than scoring all 100, fails for every open
+  model tested. They answer from where a label sits in the list rather than from the
+  candidate beside it. The one purpose-built typed model tested does not collapse.
+- **The interpolation rule is not the bottleneck.** Four interpolation schemes, a jointly
+  fit multi-arm reranker, and MWER fine-tuning of the smallest rescorer all land within
+  noise. The decoder's own acoustic weight matters more than any of them.
 
 Every arm is untuned and text-only, so these are lower bounds on what the stage could
 deliver with training or acoustic access.
