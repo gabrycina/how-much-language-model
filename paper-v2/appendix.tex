@@ -1,0 +1,95 @@
+\section{Prompts}
+\label{app:prompt}
+
+%TL;DR: Jev and Laya request.
+Jev and Laya receive one request per list through the same interface, with candidates in the
+decoder's order under labels A, B, and so on.
+
+{\scriptsize
+\begin{verbatim}
+state = {"task": "A speech decoder produced these candidate
+           sentences for what a person was trying to say.
+           Exactly one is what they meant.",
+         "candidates": {"A": <cand. 1>, "B": <cand. 2>, ...}}
+questions = {"sentence": {"type": "choice",
+  "instructions": "Which candidate is the sentence the person
+    actually meant? Judge by which reads as fluent, natural
+    English.",
+  "criteria": {"A": <cand. 1>, "B": <cand. 2>, ...}}}
+\end{verbatim}}
+
+%TL;DR: Open LLM prompt.
+OPT-6.7b and Qwen2.5-7B receive the following text, wrapped in the model's chat template where one
+exists and followed by \texttt{The answer is}; we read each label's next-token probability.
+
+{\scriptsize
+\begin{verbatim}
+A speech decoder produced these candidate sentences for what a
+person was trying to say. Exactly one is what they meant.
+Answer with the single label of the most fluent, natural
+English sentence.
+
+A: <candidate 1>
+B: <candidate 2>
+...
+Answer:
+\end{verbatim}}
+
+\section{T12 phoneme network}
+\label{app:t12}
+
+%TL;DR: Recipe and the one change from the baseline.
+We follow the public baseline for this dataset~\citep{b2t24}: threshold crossings and spike-band
+power from the 128 area-6v electrodes (256 features), z-scored per recording block; a day-specific
+input layer followed by a five-layer bidirectional GRU with 1,024 units, a kernel of 32 bins and a
+stride of 4; CTC over 39 phonemes, a word-boundary token and a blank; 10,000 batches of 64 with Adam
+(learning rate 0.02, $\epsilon = 0.1$, weight decay $10^{-5}$), dropout 0.4, white-noise (s.d. 0.8)
+and constant-offset (s.d. 0.2) augmentation, seed 0. Phoneme targets come from \texttt{g2p\_en}.
+The baseline's trainer keeps the checkpoint with the lowest phoneme error on the \texttt{test}
+partition, which would leak the evaluation set into model selection. We hold out 10\% of each
+session's \texttt{train} trials (880 trials; 7,920 remain for training) and select on them. The best
+checkpoint reaches 20.4\% phoneme error on this validation set; the \texttt{test} partition is read
+only to produce the evaluation lists.
+
+\section{Full results}
+\label{app:full}
+
+\input{appendix_tables}
+
+\section{Cost and latency}
+\label{app:latency}
+
+%TL;DR: How the latency split was measured.
+The London measurement pairs each full request with a two-option request on the same keep-alive
+connection and records the provider's \texttt{x-envoy-upstream-service-time} header; scoring-run
+latencies come from a data centre in Finland. \Cref{tab:latency} gives the figures.
+
+\section{Pre-registration}
+\label{app:prereg}
+
+%TL;DR: What was fixed in advance.
+Before any T12 data was decoded we committed to a public repository a document fixing the data
+partitions, the phoneme-network recipe and its selection rule, the decoder options, the 30/70 split
+and seed, the arms, both tuning protocols and their grids, the bootstrap procedure, the margin
+$\delta = 0.025 \times$ first-pass development error, and the decision rule (confirmed if all four
+comparisons meet $\delta$, partly confirmed if some do). We then committed the analysis code,
+checked against T15, before scoring any T12 list. The public repository records the order: the plan
+(commit \texttt{0c2a4a2}, 29 September 2026, 20:45 UTC+1) precedes the download of the T12 data; the
+analysis code (\texttt{5b88f4e}, 21:08) and label diagnostic (\texttt{b0958d1}, 21:10) precede the
+T12 scores, which we committed with the results (\texttt{de2d2a3}, 21:51).
+
+%TL;DR: Deviations.
+Deviations: (i) the plan said the Jev model version would be recorded at run time; our client did
+not store it per request, so we queried the API on the day of the run, when \texttt{jev-latest}
+resolved to \texttt{jev-1.13.0}. (ii) An exploratory open 0.6B typed-decision model was not run: it
+accepts at most 26 options and requires a custom package. (iii) The pooled two-participant analysis
+in \cref{sec:acc} was added afterwards and is exploratory.
+
+\section{Test sentences seen in training}
+\label{app:overlap}
+
+%TL;DR: Overlap counts and effect.
+Some test sentences also occur, as text, in the phoneme network's training data (different
+recordings of the same sentence): 107 of 978 for T15 and 19 of 614 for T12. They are a property of
+the benchmarks' splits. \Cref{tab:overlap} repeats the primary comparisons without them: every point
+estimate stays at or below $+0.03$ points and the intervals widen.
