@@ -18,9 +18,13 @@ if os.path.exists(os.path.join(HERE, "..", ".env")):
         if "=" in line:
             k, v = line.strip().split("=", 1); os.environ.setdefault(k, v)
 
-cache, _ = pickle.load(open(os.path.join(HERE, "..", "data", "lists_published.pkl"), "rb"))
+import argparse
+_ap = argparse.ArgumentParser(); _ap.add_argument("--lists", default=os.path.join(HERE, "..", "data", "lists_published.pkl"))
+_ap.add_argument("--n", type=int, default=80); _ap.add_argument("--out", default=os.path.join(HERE, "..", "analysis", "jev_latency_run2.json"))
+ARGS = _ap.parse_args()
+cache, _ = pickle.load(open(ARGS.lists, "rb"))
 _, test = split(cache)
-random.seed(11); sample = random.sample(test, 80)
+random.seed(11); sample = random.sample(test, ARGS.n)
 sess = Jev().session
 
 def body(state, q):
@@ -51,4 +55,4 @@ for s in sample:
 summary = {k: {"median": st.median(r[k] for r in rows)} for k in ["e2e_full", "srv_full", "e2e_tiny", "srv_tiny", "tok"]}
 summary["transport_full_median"] = st.median(r["e2e_full"] - r["srv_full"] for r in rows)
 print(json.dumps(summary, indent=1))
-json.dump({"summary": summary, "rows": rows}, open(os.path.join(HERE, "..", "analysis", "jev_latency_run2.json"), "w"), indent=1)
+json.dump({"summary": summary, "rows": rows}, open(ARGS.out, "w"), indent=1)
