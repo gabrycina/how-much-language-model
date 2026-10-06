@@ -229,10 +229,12 @@ other than A is the true sentence.}
 %TL;DR: Open models collapse; Jev's deviations carry signal on both participants.
 The gain comes from the model, not from the single-call format. Given the same task, Laya and the
 two 7B models in typed mode never beat no rescoring on either participant (\cref{app:full}). All four
-typed arms place many answers on label A, the decoder's own top candidate. What separates them is
-what happens when they deviate (\cref{tab:collapse}): Jev's other answers are the true sentence
-15--27\% of the time, the open models' 0.2--2.4\%. The candidates are listed in the decoder's order,
-so a model that answers from position rather than content lands on A or on noise.
+typed arms show strong position preferences, but not for the same position. Jev and Laya place 49--72\% of
+their answers on label A, the decoder's own top candidate. The open 7B models instead concentrate
+on fixed positions whatever the list contains: OPT-6.7b gives 27\% of its T15 answers and 61\% of
+its T12 answers to position 68, and Qwen2.5-7B gives 16\% and 26\% to position 27. What separates
+the arms is what happens when they deviate from label A (\cref{tab:collapse}): Jev's other answers
+are the true sentence 15--27\% of the time, the open models' 0.2--2.4\%.
 
 \subsection{Cost and latency}
 \label{sec:cost}
